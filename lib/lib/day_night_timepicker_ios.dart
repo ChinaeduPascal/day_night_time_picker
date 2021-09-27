@@ -326,7 +326,7 @@ class _DayNightTimePickerIosState extends State<DayNightTimePickerIos> {
           DateTime(now.year, now.month, now.day, time.hour, time.minute);
       widget.onChangeDateTime!(dateTime);
     }
-    onCancel(result: widget.value);
+    //onCancel(result: widget.value);
   }
 
   /// Handler to close the picker
@@ -340,185 +340,155 @@ class _DayNightTimePickerIosState extends State<DayNightTimePickerIos> {
 
   @override
   Widget build(BuildContext context) {
-    final _commonTimeStyles = Theme.of(context).textTheme.headline2!.copyWith(
-          fontSize: 30,
+    final _commonTimeStyles = Theme.of(context).textTheme.headline4!.copyWith(
+          fontSize: 35,
+      fontWeight: FontWeight.bold
         );
-    double hourMinValue = widget.is24HrFormat ? 0 : 1;
-    double hourMaxValue = widget.is24HrFormat ? 23 : 12;
 
-    final height = widget.is24HrFormat ? 200.0 : 240.0;
-
+    final height = widget.is24HrFormat ? 120.0 : 160.0;
     final color = widget.accentColor ?? Theme.of(context).accentColor;
     final unselectedColor = widget.unselectedColor ?? Colors.grey;
 
-    final double blurAmount = widget.blurredBackground ? 5 : 0;
-
-    final borderRadius = widget.borderRadius ?? _BORDER_RADIUS;
-    final elevation = widget.elevation ?? _ELEVATION;
-
-    return FilterWrapper(
-      blurAmount: blurAmount,
-      child: Dialog(
-        insetPadding: widget.dialogInsetPadding,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(borderRadius),
-        ),
-        elevation: elevation,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(borderRadius),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        Container(
+          height: height,
+          padding:
+              const EdgeInsets.only(left: 12.0, top: 0.0, right: 12.0,),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              widget.displayHeader!
-                  ? DayNightBanner(
-                      hour: getHours(hour, a, widget.is24HrFormat),
-                      displace:
-                          mapRange(hour! * 1.0, hourMinValue, hourMaxValue),
-                      sunAsset: widget.sunAsset,
-                      moonAsset: widget.moonAsset,
-                    )
-                  : Container(height: 25, color: Theme.of(context).cardColor),
-              Container(
-                height: height,
-                color: Theme.of(context).cardColor,
-                padding:
-                    const EdgeInsets.only(left: 12.0, top: 12.0, right: 12.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+              if (!widget.is24HrFormat)
+                AmPm(
+                  accentColor: color,
+                  unselectedColor: unselectedColor,
+                  selected: a,
+                  onChange: (e) {
+                    setState(() {
+                      a = e;
+                    });
+                  },
+                ),
+              Expanded(
+                child: Row(
+                  textDirection: TextDirection.ltr,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    if (!widget.is24HrFormat)
-                      AmPm(
-                        accentColor: color,
-                        unselectedColor: unselectedColor,
-                        selected: a,
-                        onChange: (e) {
-                          setState(() {
-                            a = e;
-                          });
-                        },
-                      ),
-                    Expanded(
-                      child: Row(
-                        textDirection: TextDirection.ltr,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          SizedBox(
-                            width: 64,
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 3.0),
-                              child: ListWheelScrollView.useDelegate(
-                                controller: _hourController,
-                                itemExtent: 36,
-                                physics: widget.disableHour!
-                                    ? const NeverScrollableScrollPhysics()
-                                    : const FixedExtentScrollPhysics(),
-                                overAndUnderCenterOpacity:
-                                    widget.disableHour! ? 0 : 0.25,
-                                perspective: 0.01,
-                                onSelectedItemChanged: (value) {
-                                  onChangeHour(hours[value]! + 0.0);
-                                },
-                                childDelegate: ListWheelChildBuilderDelegate(
-                                  childCount: hours.length,
-                                  builder: (context, index) {
-                                    final hourVal = padNumber(hours[index]!);
-                                    return Center(
-                                      child: Text(
-                                        hourVal,
-                                        style: _commonTimeStyles.copyWith(
-                                          color: hourIsSelected
-                                              ? color
-                                              : unselectedColor,
-                                        ),
-                                      ),
-                                    );
-                                  },
+                    SizedBox(
+                      width: 70,
+                      child: Padding(
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 1.0),
+                        child: ListWheelScrollView.useDelegate(
+                          controller: _hourController,
+                          itemExtent: 50,
+                          physics: widget.disableHour!
+                              ? const NeverScrollableScrollPhysics()
+                              : const FixedExtentScrollPhysics(),
+                          overAndUnderCenterOpacity:
+                              widget.disableHour! ? 0 : 0.25,
+                          perspective: 0.01,
+                          onSelectedItemChanged: (value) {
+                            onChangeHour(hours[value]! + 0.0);
+                          },
+                          childDelegate: ListWheelChildBuilderDelegate(
+                            childCount: hours.length,
+                            builder: (context, index) {
+                              final hourVal = padNumber(hours[index]!);
+                              return Center(
+                                child: Text(
+                                  hourVal,
+                                  style: _commonTimeStyles.copyWith(
+                                    color: hourIsSelected
+                                        ? color
+                                        : unselectedColor,
+                                  ),
                                 ),
-                              ),
-                            ),
+                              );
+                            },
                           ),
-                          Text(widget.hourLabel!),
-                          SizedBox(
-                            width: 64,
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 3.0),
-                              child: ListWheelScrollView.useDelegate(
-                                controller: _minuteController,
-                                itemExtent: 36,
-                                physics: widget.disableMinute!
-                                    ? const NeverScrollableScrollPhysics()
-                                    : const FixedExtentScrollPhysics(),
-                                overAndUnderCenterOpacity:
-                                    widget.disableMinute! ? 0 : 0.25,
-                                perspective: 0.01,
-                                onSelectedItemChanged: (value) {
-                                  onChangeMinute(minutes[value]! + 0.0);
-                                },
-                                childDelegate: ListWheelChildBuilderDelegate(
-                                  childCount: minutes.length,
-                                  builder: (context, index) {
-                                    final minuteVal = minutes[index]!;
-                                    return Center(
-                                      child: Text(
-                                        "${padNumber(minuteVal)}",
-                                        style: _commonTimeStyles.copyWith(
-                                          color: !hourIsSelected
-                                              ? color
-                                              : unselectedColor,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-                          ),
-                          Text(widget.minuteLabel!),
-                        ],
+                        ),
                       ),
                     ),
-                    !widget.isOnValueChangeMode
-                        ? Expanded(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: <Widget>[
-                                TextButton(
-                                  style: TextButton.styleFrom(
-                                    textStyle: TextStyle(color: color),
-                                  ),
-                                  onPressed: onCancel,
-                                  child: Text(
-                                    widget.cancelText.toUpperCase(),
-                                    style: okCancelStyle,
+                    Text(widget.hourLabel!),
+                    SizedBox(
+                      width: 70,
+                      child: Padding(
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 3.0),
+                        child: ListWheelScrollView.useDelegate(
+                          controller: _minuteController,
+                          itemExtent: 50,
+                          physics: widget.disableMinute!
+                              ? const NeverScrollableScrollPhysics()
+                              : const FixedExtentScrollPhysics(),
+                          overAndUnderCenterOpacity:
+                              widget.disableMinute! ? 0 : 0.25,
+                          perspective: 0.01,
+                          onSelectedItemChanged: (value) {
+                            onChangeMinute(minutes[value]! + 0.0);
+                          },
+                          childDelegate: ListWheelChildBuilderDelegate(
+                            childCount: minutes.length,
+                            builder: (context, index) {
+                              final minuteVal = minutes[index]!;
+                              return Center(
+                                child: Text(
+                                  "${padNumber(minuteVal)}",
+                                  style: _commonTimeStyles.copyWith(
+                                    color: !hourIsSelected
+                                        ? color
+                                        : unselectedColor,
                                   ),
                                 ),
-                                TextButton(
-                                  onPressed: onOk,
-                                  child: Text(
-                                    widget.okText.toUpperCase(),
-                                    style: okCancelStyle,
-                                  ),
-                                  style: TextButton.styleFrom(
-                                    textStyle: TextStyle(color: color),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        : SizedBox(
-                            height: 8,
+                              );
+                            },
                           ),
+                        ),
+                      ),
+                    ),
+                    Text(widget.minuteLabel!),
                   ],
                 ),
               ),
+              !widget.isOnValueChangeMode
+                  ? Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: <Widget>[
+                          TextButton(
+                            style: TextButton.styleFrom(
+                              textStyle: TextStyle(color: color),
+                            ),
+                            onPressed: onCancel,
+                            child: Text(
+                              widget.cancelText.toUpperCase(),
+                              style: okCancelStyle,
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: onOk,
+                            child: Text(
+                              widget.okText.toUpperCase(),
+                              style: okCancelStyle,
+                            ),
+                            style: TextButton.styleFrom(
+                              textStyle: TextStyle(color: color),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : SizedBox(
+                      height: 8,
+                    ),
             ],
           ),
         ),
-      ),
+      ],
     );
   }
 }
